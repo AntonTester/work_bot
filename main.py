@@ -25,7 +25,7 @@ user = db.get_user('floppa_tonn')
 tasks = db.get_tasks()
 status = ''
 
-@dp.message_handler(commands='t')
+@dp.message_handler(commands='e')
 async def lobby(message):
     print(message)
     global status
