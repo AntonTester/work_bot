@@ -21,6 +21,7 @@ class TaskTools:
             return list(filter(lambda it: int(it.id) == int(id), tasks))[0]
         except:
             return None
+
     @staticmethod
     def get_time(time_str):
         if '.' in time_str:
@@ -29,4 +30,4 @@ class TaskTools:
             now = datetime.now()
             hour, minute = time_str.split(':')
             return datetime(now.year, now.month, now.day, int(hour), int(minute)) - timedelta(hours=3)
-      
+
