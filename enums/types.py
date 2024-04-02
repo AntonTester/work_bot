@@ -1,11 +1,17 @@
 from enum import Enum
 
 
-class TypeNotification(Enum):
-    OFTEN = 1
-    AVERAGE = 5
-    RARELY = 30
-
 class TypeSchedule(Enum):
-    EVERYDAY = 0
-    ONCE = 1
+    ONCE = 0
+    EVERYDAY_1 = 1
+    EVERYDAY_2 = 2
+    EVERYDAY_3 = 3
+    WORK = 5
+
+class Status(Enum):
+    CREATE = 'create'
+    TIME = 'time'
+    DATE = 'date'
+    NOTIFICATION = 'notification'
+    SCHEDULE = 'schedule'
+    DIFFICULTY = 'difficulty'

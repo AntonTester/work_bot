@@ -1,6 +1,7 @@
 import ctypes
 import random
 
+from enums.types import Status
 from tools.strings import CfgMessages as cm
 
 
@@ -11,6 +12,23 @@ class StringTools:
         for key in keys:
             new_dict[key] = default_value
         return new_dict
+
+    @staticmethod
+    def get_text_instruction(status):
+        if status == Status.TIME.value:
+            return 'Выберите время выполнения задачи'
+        elif status == Status.SCHEDULE.value:
+            return 'Выберите периодичность задачи'
+        elif status == Status.DATE.value:
+            return 'Выберите дату'
+        elif status == Status.DIFFICULTY.value:
+            return 'Выберите сложность задачи'
+        elif status == Status.NOTIFICATION.value:
+            return 'Выберите частоту напоминания'
+        else:
+            return ''
+
+
 
     @staticmethod
     def shuffle_dict(dicts):

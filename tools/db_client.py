@@ -1,5 +1,5 @@
 import sqlite3 as sl
-from datetime import datetime
+from datetime import datetime, timedelta
 from random import randint
 
 from objects.task import Task
@@ -17,16 +17,18 @@ class DbClient:
         for row in cur.fetchall():
             id = row[0]
             name = row[1]
-            time = datetime.strptime(row[2], '%Y-%m-%d %H:%M:%S')
+            time = datetime.strptime(row[2], '%Y-%m-%d %H:%M')
             type_schedule = row[3]
             type_notification = row[4]
-            tasks.append(Task(id, name, time, type_schedule, type_notification, 1))
+            tasks.append(Task(id, name,  time, type_schedule, type_notification, 1))
 
         return tasks
 
     def add_new_task(self, task):
+        task.datetime = (task.datetime - timedelta(hours=3)).strftime('%Y-%m-%d %H:%M')
+
         sql = (
-            f'INSERT INTO tasks (name, time, type_schedule, type_notification, difficult) VALUES ("{task.name}", "{task.time}", '
+            f'INSERT INTO tasks (name, time, type_schedule, type_notification, difficult) VALUES ("{task.name}", "{task.datetime}", '
             f'{task.type_schedule}, {task.time_notification}, {task.difficult})')
 
         self.con.execute(sql)
