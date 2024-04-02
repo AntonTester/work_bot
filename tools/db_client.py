@@ -20,12 +20,12 @@ class DbClient:
             time = datetime.strptime(row[2], '%Y-%m-%d %H:%M')
             type_schedule = row[3]
             type_notification = row[4]
-            tasks.append(Task(id, name,  time, type_schedule, type_notification, 1))
+            tasks.append(Task(id, name,  time,  type_notification,type_schedule, 1))
 
         return tasks
 
     def add_new_task(self, task):
-        task.datetime = (task.datetime - timedelta(hours=3)).strftime('%Y-%m-%d %H:%M')
+        task.datetime = (task.datetime).strftime('%Y-%m-%d %H:%M')
 
         sql = (
             f'INSERT INTO tasks (name, time, type_schedule, type_notification, difficult) VALUES ("{task.name}", "{task.datetime}", '

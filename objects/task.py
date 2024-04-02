@@ -8,7 +8,7 @@ class Task:
         self.datetime = datetime
         self.time_notification = time_notification
         self.type_schedule = type_schedule
-        self.count_remember = 0
+        self.count_remember = -1
         self.status = 0
         self.difficult = difficult
 
@@ -17,7 +17,7 @@ class Task:
         time = self.datetime + datetime.timedelta(minutes=self.time_notification * self.count_remember)
         return time <= now
     def is_end_tries(self):
-        return self.count_remember > 3
+        return self.count_remember > 2
     def add_count_remember(self):
         self.count_remember += 1
 
