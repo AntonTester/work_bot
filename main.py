@@ -26,19 +26,11 @@ status = 'create'
 current_task = Task(0, '',  0, 0, 0, 0)
 
 
-@dp.message_handler(commands='e')
-async def lobby(message):
-    print(message)
-    global status
-    status = 'create'
-    db.check_user(message.chat.username, message.chat.first_name)
-    await commentator.show_instruction()
-
-
 @dp.message_handler()
 async def lobby(message):
     print(message)
     global status
+    status = 'create'
     if message.chat.id > 0:
         if status == Status.CREATE.value:
             current_task.name = message.text
@@ -88,6 +80,7 @@ async def lobby(callback_query: types.CallbackQuery):
         db.check_user(callback_query['from'].username, callback_query['from'].first_name)
         db.add_new_task(current_task)
         tasks = db.get_tasks()
+        status = 'create'
         await commentator.show_success()
     else:
         await commentator.show_step_instruction(status)
