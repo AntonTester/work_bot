@@ -63,7 +63,7 @@ async def lobby(callback_query: types.CallbackQuery):
         current_task.datetime = datetime.today().replace(hour=0, minute=0)
         status = Status.TIME.value
     elif data == 'tomorrow':
-        current_task.datetime = datetime.today().replace(hour=0, minute=0)
+        current_task.datetime = datetime.today().replace(hour=0, minute=0) + timedelta(days=1)
         status = Status.TIME.value
     elif data == 'time':
         hours = callback_query.data.split('_')[2]
