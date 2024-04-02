@@ -25,7 +25,7 @@ class DbClient:
         return tasks
 
     def add_new_task(self, task):
-        task.datetime = (task.datetime).strftime('%Y-%m-%d %H:%M')
+        task.datetime = (task.datetime-timedelta(hours=3)).strftime('%Y-%m-%d %H:%M')
 
         sql = (
             f'INSERT INTO tasks (name, time, type_schedule, type_notification, difficult) VALUES ("{task.name}", "{task.datetime}", '
