@@ -46,6 +46,12 @@ class Commentator:
         for tracker in trackers:
             await self.bt.send_text(self.chat_id, st.get_tracker_info(tracker), mt.get_keyboard_tracker(tracker.id, tracker.name_time))
 
+    async def show_tasks(self, tasks):
+        msg = ''
+        for task in tasks:
+            msg += st.get_task_info(task)
+        await self.bt.send_text(self.chat_id, msg)
+
     async def show_step_instruction(self, status):
         await self.bt.send_text(self.chat_id, StringTools.get_text_instruction(status), mt.get_keyboard_step(status))
 

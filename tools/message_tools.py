@@ -84,8 +84,8 @@ class KeyboardTools:
                     '19:00': 'time_19',
                     '20:00': 'time_20',
                     '21:00': 'time_21',
-                    '22:00': 'time_21',
-                    '23:00': 'time_21',
+                    '22:00': 'time_22',
+                    '23:00': 'time_23',
                     }
 
         kb = CustomInlineKeyboard(False)

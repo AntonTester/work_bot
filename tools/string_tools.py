@@ -2,9 +2,11 @@ import ctypes
 import datetime
 import math
 import random
+from time import strftime
 
 from enums.types import Status
 from tools.strings import CfgMessages as cm
+from tools.task_tools import TaskTools
 
 
 class StringTools:
@@ -29,8 +31,6 @@ class StringTools:
             return 'Выберите частоту напоминания'
         else:
             return ''
-
-
 
     @staticmethod
     def shuffle_dict(dicts):
@@ -75,6 +75,7 @@ class StringTools:
         elif rate < 2000:
             name = 'Омежка'
         return name
+
     @staticmethod
     def get_lobby(players):
         player_names = StringTools.get_list_names(players)
@@ -92,7 +93,7 @@ class StringTools:
     @staticmethod
     def get_progress(max, current):
         res = ''
-        count_green = math.floor((current/max) * 10)
+        count_green = math.floor((current / max) * 10)
         for i in range(0, 10):
             if count_green > i:
                 res += '🟩'
@@ -103,15 +104,24 @@ class StringTools:
     @staticmethod
     def get_alert_current_player(name):
         return cm.ALERT_PLAYER.replace('%name%', name)
+
     @staticmethod
     def get_result_dice(name, result):
         return cm.RESULT_DICE.replace('%name%', name).replace('%result%', result)
+
     @staticmethod
     def get_tracker_info(tracker):
         return (f'Ваш трекер - {tracker.name}'
-                   f'\n\nПрогресс: *({tracker.count}/{tracker.max_count})*'
-                   f'\n{StringTools.get_progress(tracker.max_count, tracker.count)}'
-                   f'\n\nПрошло дней: *{(datetime.datetime.now() - tracker.date_create).days}*')
+                f'\n\nПрогресс: *({tracker.count}/{tracker.max_count})*'
+                f'\n{StringTools.get_progress(tracker.max_count, tracker.count)}'
+                f'\n\nПрошло: *{(datetime.datetime.now() - tracker.date_create).days}*')
+
+    @staticmethod
+    def get_task_info(task):
+        return (f'*{task.name}*\n'
+                f'Дата: *{TaskTools.get_str_time_text(task.datetime)}*\n'
+                '\n'
+                )
 
     @staticmethod
     def get_color_player(color_type):

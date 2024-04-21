@@ -49,4 +49,8 @@ class TaskTools:
         if is_test:
             return time.strftime('%Y-%m-%d %H:%M')
         else:
-            return (time-timedelta(hours=3)).strftime('%Y-%m-%d %H:%M')
+            return (time - timedelta(hours=3)).strftime('%Y-%m-%d %H:%M') @ staticmethod
+
+    @staticmethod
+    def get_str_time_text(time):
+        return (time + timedelta(hours=3)).strftime('%d.%m.%Y %H:%M')

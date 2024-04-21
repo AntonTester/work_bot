@@ -31,6 +31,9 @@ async def cancel(message):
     global trackers
     trackers = db.get_trackers()
     await commentator.show_trackers(trackers)
+@dp.message_handler(commands="l")
+async def cancel(message):
+    await commentator.show_tasks(tasks)
 @dp.message_handler(commands="rr")
 async def cancel(message):
     await commentator.show_instruction_tracker()
