@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 from aiogram import Bot, Dispatcher, executor, types
 
-from enums.types import  TypeSchedule, Status
+from enums.types import TypeSchedule, Status
 from gameplay.commentator import Commentator
 from objects.task import Task
 from tools.db_client import DbClient
@@ -15,28 +15,44 @@ from tools.task_tools import TaskTools
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 # API_TOKEN = '5318895791:AAG4zi5nqkVyY3erbpi0lIUPPuMaIQMxCwg'
-API_TOKEN = '5470429630:AAHarmYA5wa-RrbaE-QtamdCuVHtAciso4g'
+API_TOKEN = '6451320447:AAEFDSNhzpm3Z9ahajLrzi4JbHBaohFrfRE'
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 commentator = Commentator(bot, 505644694)
 db = DbClient()
 user = db.get_user('floppa_tonn')
 tasks = db.get_tasks()
+trackers = db.get_trackers()
 status = 'create'
-current_task = Task(0, '',  0, 0, 0, 0)
+current_task = Task(0, '', 0, 0, 0, 0, None)
 
+@dp.message_handler(commands="r")
+async def cancel(message):
+    global trackers
+    trackers = db.get_trackers()
+    await commentator.show_trackers(trackers)
+@dp.message_handler(commands="rr")
+async def cancel(message):
+    await commentator.show_instruction_tracker()
 
 @dp.message_handler()
 async def lobby(message):
     print(message)
-    global status
+    global status, trackers
     status = 'create'
     if message.chat.id > 0:
-        if status == Status.CREATE.value:
-            current_task.name = message.text
-            status = Status.SCHEDULE.value
+        if 'Трекер' in message.text:
+            tracker = TaskTools.get_tracker_from_text(message.text)
+            db.add_new_tracker(tracker)
+            trackers = db.get_trackers()
+            await commentator.show_success_tracker()
+        else:
+            if status == Status.CREATE.value:
+                current_task.name = message.text
+                status = Status.SCHEDULE.value
 
-        await commentator.show_step_instruction(status)
+            await commentator.show_step_instruction(status)
+
 
 @dp.callback_query_handler(lambda c: c.data and c.data.startswith('task'))
 async def lobby(callback_query: types.CallbackQuery):
@@ -46,7 +62,7 @@ async def lobby(callback_query: types.CallbackQuery):
     if data == 'once':
         status = Status.DATE.value
     elif data == 'everyday':
-        num = callback_query.data.split('_')[2]
+        num = int(callback_query.data.split('_')[2])
         if num == 1:
             current_task.type_schedule = TypeSchedule.EVERYDAY_1.value
         elif num == 2:
@@ -84,6 +100,34 @@ async def lobby(callback_query: types.CallbackQuery):
         await commentator.show_success()
     else:
         await commentator.show_step_instruction(status)
+@dp.callback_query_handler(lambda c: c.data and c.data.startswith('tracker'))
+async def lobby(callback_query: types.CallbackQuery):
+    global status, tasks
+    data, action = callback_query.data.split('_')[1:3]
+    tracker = TaskTools.get_tracker(trackers, int(data))
+    if action == 'add':
+        tracker.add_time()
+        await commentator.show_updated_tracker(tracker, callback_query.message.message_id)
+    else:
+        if tracker.is_completed():
+            user.complete_tracker(tracker)
+            await commentator.show_good_alert(user)
+        else:
+            user.loose_tracker(tracker)
+            tracker.set_loose()
+            await commentator.show_evil_alert(user)
+    db.update_tracker(trackers)
+
+@dp.callback_query_handler(lambda c: c.data and c.data.startswith('success'))
+async def cancel(callback_query: types.CallbackQuery):
+    id = callback_query.data.split('_')[1]
+    task = TaskTools.get_task(tasks, id)
+    task.set_complete()
+    user.complete_task(task)
+    db.update_task(tasks)
+    db.update_user(user)
+    await commentator.show_good_alert(user)
+
 
 async def check_tasks():
     is_changed = False
@@ -106,16 +150,6 @@ async def check_tasks():
 
         await asyncio.sleep(2)
 
-
-@dp.callback_query_handler(lambda c: c.data and c.data.startswith('success'))
-async def cancel(callback_query: types.CallbackQuery):
-    id = callback_query.data.split('_')[1]
-    task = TaskTools.get_task(tasks, id)
-    task.set_complete()
-    user.complete_task(task)
-    db.update_task(tasks)
-    db.update_user(user)
-    await commentator.show_good_alert(user)
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()

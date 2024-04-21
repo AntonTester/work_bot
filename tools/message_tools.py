@@ -15,6 +15,15 @@ class KeyboardTools:
         kb = CustomInlineKeyboard()
         kb.add_buttons(btns, "host_")
         return kb.kb_full
+    @staticmethod
+    def get_keyboard_tracker(id, type):
+        btns = {f"Добавить 1 {type}": "add",
+                "Завершить": "end"
+                }
+
+        kb = CustomInlineKeyboard()
+        kb.add_buttons(btns, f"tracker_{id}_")
+        return kb.kb_full
 
     @staticmethod
     def get_keyboard_round(name_game=''):
@@ -48,8 +57,7 @@ class KeyboardTools:
                     }
         elif status == Status.DATE.value:
             btns = {'Сегодня': 'today',
-                    'Завтра': 'tomorrow'
-                    }
+                    'Завтра': 'tomorrow'}
         elif status == Status.NOTIFICATION.value:
             btns = {'5 минут': 'noti_5',
                     '10 минут': 'noti_10',

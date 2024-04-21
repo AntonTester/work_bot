@@ -23,3 +23,12 @@ class User:
         self.last_change = int(10 * (1 + (task.difficult * (self.spree/20))))
         self.rate += self.last_change
 
+    def loose_tracker(self, tracker):
+        self.spree = 0
+        self.last_change = int(tracker.cost*1.5)
+        self.rate += self.last_change
+    def complete_tracker(self, tracker):
+        self.spree += 5
+        self.last_change = int(tracker.cost)
+        self.rate += self.last_change
+

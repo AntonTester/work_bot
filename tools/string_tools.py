@@ -1,4 +1,6 @@
 import ctypes
+import datetime
+import math
 import random
 
 from enums.types import Status
@@ -88,11 +90,28 @@ class StringTools:
         return res
 
     @staticmethod
+    def get_progress(max, current):
+        res = ''
+        count_green = math.floor((current/max) * 10)
+        for i in range(0, 10):
+            if count_green > i:
+                res += '🟩'
+            else:
+                res += '🟥'
+        return res
+
+    @staticmethod
     def get_alert_current_player(name):
         return cm.ALERT_PLAYER.replace('%name%', name)
     @staticmethod
     def get_result_dice(name, result):
         return cm.RESULT_DICE.replace('%name%', name).replace('%result%', result)
+    @staticmethod
+    def get_tracker_info(tracker):
+        return (f'Ваш трекер - {tracker.name}'
+                   f'\n\nПрогресс: *({tracker.count}/{tracker.max_count})*'
+                   f'\n{StringTools.get_progress(tracker.max_count, tracker.count)}'
+                   f'\n\nПрошло дней: *{(datetime.datetime.now() - tracker.date_create).days}*')
 
     @staticmethod
     def get_color_player(color_type):
