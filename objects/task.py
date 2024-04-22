@@ -8,7 +8,7 @@ class Task:
         self.datetime = datetime
         self.time_notification = time_notification
         self.type_schedule = type_schedule
-        self.count_remember = -1
+        self.count_remember = -5
         self.status = 0
         self.difficult = difficult
         self.last_completed = last_completed
