@@ -6,6 +6,7 @@ class TypeSchedule(Enum):
     EVERYDAY_1 = 1
     EVERYDAY_2 = 2
     EVERYDAY_3 = 3
+    EVERYDAY_4 = 4
     WORK = 5
 
 class Status(Enum):

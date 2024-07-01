@@ -5,6 +5,7 @@ import time
 from datetime import datetime, timedelta
 
 from aiogram import Bot, Dispatcher, executor, types
+from telebot.apihelper import answer_callback_query
 
 from enums.types import TypeSchedule, Status
 from gameplay.commentator import Commentator
@@ -14,8 +15,8 @@ from tools.task_tools import TaskTools
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-API_TOKEN = '5470429630:AAHarmYA5wa-RrbaE-QtamdCuVHtAciso4g'
-#API_TOKEN = '6451320447:AAEFDSNhzpm3Z9ahajLrzi4JbHBaohFrfRE'
+#API_TOKEN = '5470429630:AAHarmYA5wa-RrbaE-QtamdCuVHtAciso4g'
+API_TOKEN = '6451320447:AAEFDSNhzpm3Z9ahajLrzi4JbHBaohFrfRE'
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 commentator = Commentator(bot, 505644694)
@@ -24,7 +25,7 @@ user = db.get_user('floppa_tonn')
 tasks = db.get_tasks()
 trackers = db.get_trackers()
 status = 'create'
-current_task = Task(0, '', 0, 0, 0, 0, None)
+current_task = Task(0, '', 0, 0, 0, 0, None, 0)
 
 @dp.message_handler(commands="r")
 async def cancel(message):
@@ -56,22 +57,23 @@ async def lobby(message):
 
             await commentator.show_step_instruction(status)
 
-
-@dp.callback_query_handler(lambda c: c.data and c.data.startswith('task'))
+@dp.callback_query_handler(lambda c: c.data and c.data.startswith('task_create'))
 async def lobby(callback_query: types.CallbackQuery):
     global status, tasks
-    data = callback_query.data.split('_')[1]
+    data = callback_query.data.split('_')[2]
 
     if data == 'once':
         status = Status.DATE.value
     elif data == 'everyday':
-        num = int(callback_query.data.split('_')[2])
+        num = int(callback_query.data.split('_')[3])
         if num == 1:
             current_task.type_schedule = TypeSchedule.EVERYDAY_1.value
         elif num == 2:
             current_task.type_schedule = TypeSchedule.EVERYDAY_2.value
         elif num == 3:
             current_task.type_schedule = TypeSchedule.EVERYDAY_3.value
+        elif num == 4:
+            current_task.type_schedule = TypeSchedule.EVERYDAY_4.value
         current_task.datetime = datetime.today().replace(hour=0, minute=0)
         status = Status.TIME.value
     elif data == 'work':
@@ -85,15 +87,15 @@ async def lobby(callback_query: types.CallbackQuery):
         current_task.datetime = datetime.today().replace(hour=0, minute=0) + timedelta(days=1)
         status = Status.TIME.value
     elif data == 'time':
-        hours = callback_query.data.split('_')[2]
+        hours = callback_query.data.split('_')[3]
         current_task.datetime = current_task.datetime + timedelta(hours=int(hours))
         status = Status.NOTIFICATION.value
     elif data == 'noti':
-        value = callback_query.data.split('_')[2]
+        value = callback_query.data.split('_')[3]
         current_task.time_notification = int(value)
         status = Status.DIFFICULTY.value
     elif data == 'diff':
-        diff = callback_query.data.split('_')[2]
+        diff = callback_query.data.split('_')[3]
         current_task.difficult = int(diff)
     if data == 'diff':
         db.check_user(callback_query['from'].username, callback_query['from'].first_name)
@@ -103,6 +105,7 @@ async def lobby(callback_query: types.CallbackQuery):
         await commentator.show_success()
     else:
         await commentator.show_step_instruction(status)
+    answer_callback_query(API_TOKEN, callback_query.id)
 @dp.callback_query_handler(lambda c: c.data and c.data.startswith('tracker'))
 async def lobby(callback_query: types.CallbackQuery):
     global status, tasks
@@ -120,17 +123,24 @@ async def lobby(callback_query: types.CallbackQuery):
             tracker.set_loose()
             await commentator.show_evil_alert(user)
     db.update_tracker(trackers)
+    answer_callback_query(API_TOKEN, callback_query.id)
 
-@dp.callback_query_handler(lambda c: c.data and c.data.startswith('success'))
+@dp.callback_query_handler(lambda c: c.data and c.data.startswith('task'))
 async def cancel(callback_query: types.CallbackQuery):
-    id = callback_query.data.split('_')[1]
+    action, id = callback_query.data.split('_')[1:3]
     task = TaskTools.get_task(tasks, id)
-    task.set_complete()
-    user.complete_task(task)
+    if action == 'success':
+        task.set_complete()
+        user.complete_task(task)
+        await commentator.show_good_alert(user)
+    else:
+        if user.is_has_diamond():
+            task.transfer()
+            user.use_diamond()
+            await commentator.show_transfer_alert(user)
     db.update_task(tasks)
     db.update_user(user)
-    await commentator.show_good_alert(user)
-
+    answer_callback_query(API_TOKEN, callback_query.id)
 
 async def check_tasks():
     is_changed = False
@@ -145,11 +155,19 @@ async def check_tasks():
                     await commentator.show_evil_alert(user)
                     await commentator.show_punish()
                 else:
-                    await commentator.show_alert(task)
+                    await commentator.show_alert(task, user)
+        for tracker in trackers:
+            if tracker.is_loose():
+                is_changed = True
+                user.loose_tracker(tracker)
+                tracker.set_loose()
+                await commentator.show_evil_alert(user)
+
         if is_changed:
             is_changed = False
             db.update_user(user)
             db.update_task(tasks)
+            db.update_tracker(trackers)
 
         await asyncio.sleep(2)
 

@@ -15,7 +15,7 @@ class DbClient:
 
     def get_tasks(self):
         cur = self.con.cursor()
-        cur.execute(f"SELECT id, name, time, type_schedule, type_notification, last_completed FROM tasks WHERE status=0")
+        cur.execute(f"SELECT id, name, time, type_schedule, type_notification, last_completed, transfers FROM tasks WHERE status=0")
         tasks = []
         for row in cur.fetchall():
             id = row[0]
@@ -24,23 +24,25 @@ class DbClient:
             type_schedule = row[3]
             type_notification = row[4]
             last_completed = datetime.strptime(row[5], '%Y-%m-%d %H:%M')
-            tasks.append(Task(id, name,  time,  type_notification,type_schedule, 1, last_completed))
+            transfers = row[6]
+            tasks.append(Task(id, name,  time,  type_notification,type_schedule, 1, last_completed, transfers))
 
         return tasks
 
     def get_trackers(self):
         cur = self.con.cursor()
-        cur.execute(f"SELECT id, name, name_time, cost, max_count, count, date_create FROM trackers")
+        cur.execute(f"SELECT id, name, name_progress, cost, max_progress, progress, date_create, count_days FROM trackers")
         tasks = []
         for row in cur.fetchall():
             id = row[0]
             name = row[1]
-            name_time = row[2]
+            name_progress = row[2]
             cost = int(row[3])
-            max_count = int(row[4])
-            count = int(row[5])
+            max_progress = int(row[4])
+            progress = int(row[5])
             time = datetime.strptime(row[6], '%Y-%m-%d %H:%M')
-            tasks.append(Tracker(id, name,  name_time,  cost, max_count, count, time))
+            count_days =int(row[7])
+            tasks.append(Tracker(id, name, count_days,  name_progress,  cost, max_progress, progress, time))
 
         return list(filter(lambda i: not i.is_completed(), tasks))
 
@@ -53,14 +55,15 @@ class DbClient:
 
     def get_user(self, login):
         cur = self.con.cursor()
-        cur.execute(f"SELECT name, login, spree, rate FROM players WHERE login='{login}'")
+        cur.execute(f"SELECT name, login, spree, rate, diamonds FROM players WHERE login='{login}'")
         row = cur.fetchall()[0]
         name = row[0]
         login = row[1]
         spree = row[2]
         rate = row[3]
+        diamonds = row[4]
 
-        return User(login, name, rate, spree)
+        return User(login, name, rate, spree, diamonds)
 
     def add_new_task(self, task):
         last_completed = TaskTools.get_str_time(datetime.now()
@@ -77,7 +80,7 @@ class DbClient:
         time = TaskTools.get_str_time(tracker.date_create)
         sql = (
             f'INSERT INTO trackers (name, name_time, cost, max_count, date_create) VALUES '
-            f'("{tracker.name}", "{tracker.name_time}", {tracker.cost}, {tracker.max_count}, "{time}")')
+            f'("{tracker.name}", "{tracker.name_progress}", {tracker.cost}, {tracker.max_count}, "{time}")')
 
         self.con.execute(sql)
         self.con.commit()
@@ -88,8 +91,6 @@ class DbClient:
         self.con.execute(sql)
         self.con.commit()
 
-
-
     def update_user(self, user):
         cur = self.con.cursor()
         sql = f"UPDATE players SET spree={user.spree}, rate={user.rate} WHERE login='{user.login}'"
@@ -99,14 +100,15 @@ class DbClient:
     def update_tracker(self, trackers):
         for tracker in trackers:
             cur = self.con.cursor()
-            sql = f"UPDATE trackers SET count={tracker.count} WHERE id='{tracker.id}'"
+            sql = f"UPDATE trackers SET progress={tracker.progress} WHERE id='{tracker.id}'"
             cur.execute(sql)
             self.con.commit()
 
     def update_task(self, tasks):
         for task in tasks:
             cur = self.con.cursor()
-            sql = (f"UPDATE tasks SET status={task.status}, last_completed='{TaskTools.get_str_time(task.last_completed)}' "
+            sql = (f"UPDATE tasks SET status={task.status}, transfers={task.transfers}, "
+                   f"last_completed='{TaskTools.get_str_time(task.last_completed)}' "
                    f"WHERE id='{task.id}'")
             cur.execute(sql)
             self.con.commit()

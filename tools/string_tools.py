@@ -114,7 +114,7 @@ class StringTools:
         return (f'Ваш трекер - {tracker.name}'
                 f'\n\nПрогресс: *({tracker.count}/{tracker.max_count})*'
                 f'\n{StringTools.get_progress(tracker.max_count, tracker.count)}'
-                f'\n\nПрошло дней: *{(datetime.datetime.now() - tracker.date_create).days}*')
+                f'\n\nПрошло дней: *{tracker.count_days - (datetime.datetime.now() - tracker.date_create).days}*')
 
     @staticmethod
     def get_task_info(task):

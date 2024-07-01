@@ -18,8 +18,8 @@ class TaskTools:
 
     @staticmethod
     def get_tracker_from_text(text):
-        a, name, name_time, cost, count = text.split('\n')
-        return Tracker(0, name, name_time, int(cost), int(count))
+        a, name, count_day, name_progress, cost, max_progress = text.split('\n')
+        return Tracker(0, name, int(count_day), name_progress, int(cost), int(max_progress))
 
     @staticmethod
     def get_task(tasks, id):

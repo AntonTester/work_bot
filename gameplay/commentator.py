@@ -13,18 +13,22 @@ class Commentator:
         self.chat_punish_id = -1001783638936
         self.messages = []
 
-    async def show_alert(self, task):
+    async def show_alert(self, task, user):
         await self.bt.send_text(self.chat_id, f"Напоминаю, нужно сделать следующую задачу:\n\n"
                                               f"*{task.name}*\n\nУ тебя осталось ещё {3 - task.count_remember} напоминания",
-                                mt.get_keyboard_task(task.id))
+                                mt.get_keyboard_task(task.id, user.count_diamonds))
 
     async def show_good_alert(self, user):
-        await self.bt.send_text(self.chat_id, f"Вы выполнили задачу! Вы получили {user.last_change} рейтинга.\n\n"
-                                              f"Ваш рейтинг - *{user.rate}*\n\n"
+        await self.bt.send_text(self.chat_id, f"Вы выполнили задачу! Вы получили {user.last_change_rate} рейтинга "
+                                              f"и {user.last_change_diamonds} 💎!\n\n"
+                                              f"Ваш рейтинг - *{user.rate}*\n"
+                                              f"Ваш баланс - *{user.count_diamonds}*💎\n\n"
                                               f"Ваше звание - *{StringTools.get_rate_name(user.rate)}*")
+    async def show_transfer_alert(self, user):
+        await self.bt.send_text(self.chat_id, f"Вы успешно перенесли задачу на час! У вас осталось {user.count_diamonds} 💎!")
 
     async def show_evil_alert(self, user):
-        await self.bt.send_text(self.chat_id, f"Вы провалили задачу! Вы потеряли {user.last_change} рейтинга.\n\n"
+        await self.bt.send_text(self.chat_id, f"Вы провалили задачу! Вы потеряли {user.last_change_rate} рейтинга.\n\n"
                                               f"Ваш рейтинг - *{user.rate}*\n\n"
                                               f"Ваше звание - *{StringTools.get_rate_name(user.rate)}*")
 
@@ -40,11 +44,11 @@ class Commentator:
 
     async def show_updated_tracker(self, tracker, message_id):
         await self.bt.edit_text(self.chat_id, message_id, st.get_tracker_info(tracker),
-                                mt.get_keyboard_tracker(tracker.id, tracker.name_time))
+                                mt.get_keyboard_tracker(tracker.id, tracker.name_progress))
 
     async def show_trackers(self, trackers):
         for tracker in trackers:
-            await self.bt.send_text(self.chat_id, st.get_tracker_info(tracker), mt.get_keyboard_tracker(tracker.id, tracker.name_time))
+            await self.bt.send_text(self.chat_id, st.get_tracker_info(tracker), mt.get_keyboard_tracker(tracker.id, tracker.name_progress))
 
     async def show_tasks(self, tasks):
         msg = ''
@@ -66,6 +70,7 @@ class Commentator:
         await self.bt.send_text(self.chat_id, f"Отправь мне задачу! Формат: \n"
                                               f"*Трекер*\n"
                                               f"*Название*\n"
+                                              f"*Количество дней на выполнение*\n"
                                               f"*Название времени*\n"
                                               f"*Цена*\n"
                                               f"*Количество времени*")

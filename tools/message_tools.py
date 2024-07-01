@@ -35,13 +35,15 @@ class KeyboardTools:
         return kb.kb_full
 
     @staticmethod
-    def get_keyboard_task(task_id):
-        btns = {"🎲Сделал": f"_{task_id}"
+    def get_keyboard_task(task_id, count_diamonds=0):
+        btns = {"🎲Сделал": f"_success_{task_id}",
+                f"Перенести на час ({count_diamonds}💎)": f"_transfer_{task_id}"
                 }
 
         kb = CustomInlineKeyboard()
-        kb.add_buttons(btns, f"success")
+        kb.add_buttons(btns, f"task")
         return kb.kb_full
+
 
     @staticmethod
     def get_keyboard_step(status):
@@ -89,5 +91,5 @@ class KeyboardTools:
                     }
 
         kb = CustomInlineKeyboard(False)
-        kb.add_buttons(btns, f"task_")
+        kb.add_buttons(btns, f"task_create_")
         return kb.kb_full
