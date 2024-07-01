@@ -15,8 +15,8 @@ from tools.task_tools import TaskTools
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-#API_TOKEN = '5470429630:AAHarmYA5wa-RrbaE-QtamdCuVHtAciso4g'
-API_TOKEN = '6451320447:AAEFDSNhzpm3Z9ahajLrzi4JbHBaohFrfRE'
+API_TOKEN = '5470429630:AAHarmYA5wa-RrbaE-QtamdCuVHtAciso4g'
+#API_TOKEN = '6451320447:AAEFDSNhzpm3Z9ahajLrzi4JbHBaohFrfRE'
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 commentator = Commentator(bot, 505644694)
